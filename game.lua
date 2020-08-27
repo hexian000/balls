@@ -5,14 +5,8 @@ function love.load()
     love.window.setTitle("Balls")
     love.window.setFullscreen(true)
     width, height = love.graphics.getDimensions()
+    love.mouse.setVisible(false)
     math.randomseed(os.time())
-
-    controller = {}
-    if love.mouse.isCursorSupported() then
-        controller.getPosition = love.mouse.getPosition
-    else
-        controller.getPosition = love.touch.getPosition
-    end
 
     player = {
         x = width / 2.0,
