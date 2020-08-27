@@ -1,10 +1,9 @@
-local TYPE_PLAYER = 1
-local TYPE_ENEMY = 2
-local TYPE_BONUS = 3
+TYPE_ENEMY = 1
+TYPE_BONUS = 2
 
 function love.load()
     love.window.setTitle("Balls")
-    -- love.window.setFullscreen(true)
+    love.window.setFullscreen(true)
     width, height = love.graphics.getDimensions()
     math.randomseed(os.time())
 
@@ -15,13 +14,20 @@ function love.load()
         controller.getPosition = love.touch.getPosition
     end
 
-    max_balls = 0
-    balls = {{
-        x = 0,
-        y = 0,
+    player = {
+        x = width / 2.0,
+        y = height / 2.0,
         r = conf.radius,
+        collision = 0.0,
+        hp = 1.0,
+        active = true,
         type = TYPE_PLAYER
-    }}
+    }
+    max_balls = 0
+    balls = {}
+
+    effect_warn = 0.0
+    effect_dead = 0.0
 end
 
 local function is_visible(body)
@@ -69,22 +75,67 @@ updT, drwT = 0.0, 0.0
 colC = 0.0
 spawn_counter = 0.0
 
+local function take_damage(damage)
+    player.collision = 1.0
+    local hp = player.hp - damage
+    if hp < 0.0 then
+        player.active = false
+        effect_warn = 0.5
+        effect_dead = 2.0
+    elseif hp < 0.2 then
+        effect_warn = 0.5
+    end
+    player.hp = hp
+end
+
+local update_by_type = {
+    [TYPE_ENEMY] = function(dt, ball)
+        if not is_visible(ball) and is_escape(ball) then
+            -- respawn
+            return spawn_enemy(ball)
+        end
+        if player.active and is_overlap(ball, player, 1e-3) then
+            take_damage(conf.damage_normal)
+            return nil
+        end
+        ball.collision = math.max(ball.collision - dt, 0.0)
+        return ball
+    end,
+    [TYPE_BONUS] = function(dt, ball)
+        if player.active and is_overlap(ball, player, 1e-3) then
+            return nil
+        end
+        return ball
+    end
+}
+
+function love.mousemoved(x, y, dx, dy, istouch)
+    if player.active then
+        player.x, player.y = x, y
+    end
+end
+
 function love.update(dt)
     local begin = love.timer.getTime()
 
-    balls[1].x, balls[1].y = controller.getPosition()
+    width, height = love.graphics.getDimensions()
+
+    if player.active then
+        player.hp = math.min(player.hp + conf.base_heal * dt, 1.0)
+    end
+    player.collision = math.max(player.collision - dt, 0.0)
 
     local escaped = 0
     for i = 1, max_balls do
         local ball = balls[i]
-        if ball and ball.type == TYPE_ENEMY then
-            if not is_visible(ball) and is_escape(ball) then
-                -- respawn
-                balls[i] = spawn_enemy(ball)
-            else
-                ball.collision = math.max(ball.collision - dt, 0.0)
-            end
+        if ball then
+            balls[i] = update_by_type[ball.type](dt, ball)
         end
+    end
+
+    if player.active and player.hp <= 0.0 then
+        player.active = false
+        effect_dead = 2.0
     end
 
     if updT < 10e-3 then
@@ -110,53 +161,19 @@ function love.update(dt)
 
     local count = simulate(dt, balls, max_balls)
 
-    love.graphics.setBackgroundColor(0, 0, 0, 1)
+    if effect_dead > 0.0 then
+        effect_dead = effect_dead - dt
+    end
+
+    if effect_warn > 0.0 then
+        effect_warn = effect_warn - dt
+        love.graphics.setBackgroundColor(effect_warn, 0, 0, 1)
+    else
+        love.graphics.setBackgroundColor(0, 0, 0, 1)
+    end
 
     colC = avg60(colC, count)
     updT = avg60(updT, love.timer.getTime() - begin)
-end
-
-local color_by_type = {
-    [TYPE_PLAYER] = function(g, ball)
-    end,
-    [TYPE_ENEMY] = function(g, ball)
-        if ball.collision > 0.0 then
-            local c = math.pow(conf.collision_animation, 1.0 - ball.collision)
-            local nc = 1.0 - c
-            g.setColor(1.0 * c + 0.25 * nc, 0.28 * nc, 0.80 * nc)
-        else
-            g.setColor(0.25, 0.28, 0.80)
-        end
-    end,
-    [TYPE_BONUS] = function(g, ball)
-    end
-}
-
-function love.draw()
-    local begin = love.timer.getTime()
-
-    local g = love.graphics
-
-    for i = 1, max_balls do
-        local ball = balls[i]
-        if ball then
-            if ball.mark then
-                g.setColor(0.0, 1.0, 0.0)
-            else
-                color_by_type[ball.type](g, ball)
-            end
-            g.circle("fill", ball.x, ball.y, ball.r)
-        end
-    end
-
-    -- g.setColor(0.0, 0.64, 0.91)
-    -- g.circle("fill", x, y, r)
-
-    g.setColor(0.0, 1.0, 0.0)
-    g.print(string.format("%s\n%d fps updT: %.1f ms drwT: %.1f ms colC: %.1f", conf.version, love.timer.getFPS(),
-                updT * 1e+3, drwT * 1e+3, colC), 10, 10)
-
-    drwT = avg60(drwT, love.timer.getTime() - begin)
 end
 
 function love.keypressed(key, scancode, isrepeat)

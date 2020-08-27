@@ -16,7 +16,8 @@ function _G.avg60(s, v)
 end
 
 require("physics")
-require("event")
+require("game")
+require("graphics")
 
 function love.run()
     if love.load then
