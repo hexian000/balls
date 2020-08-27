@@ -13,10 +13,15 @@ local draw_by_type = {
     end
 }
 
-local function draw_game(g)
+function love.draw()
+    local begin = love.timer.getTime()
+
+    local g = love.graphics
+    local active = 0
     for i = 1, max_balls do
         local ball = balls[i]
         if ball then
+            active = active + 1
             if ball.mark then
                 g.setColor(0.0, 1.0, 0.0)
                 g.circle("fill", ball.x, ball.y, ball.r)
@@ -41,13 +46,6 @@ local function draw_game(g)
         g.setColor(1.0 * c + 0.13 * nc, 1.69 * nc, 0.30 * nc)
         g.rectangle("fill", 0.0, height - 10.0, width * player.hp, 10.0)
     end
-end
-
-function love.draw()
-    local begin = love.timer.getTime()
-
-    local g = love.graphics
-    draw_game(g)
 
     if effect_dead > 0.0 then
         if effect_dead > 1.0 then
@@ -60,8 +58,8 @@ function love.draw()
 
     -- debug
     g.setColor(0.0, 1.0, 0.0)
-    g.print(string.format("%s\n%d fps updT: %.1f ms drwT: %.1f ms colC: %.1f", conf.version, love.timer.getFPS(),
-                updT * 1e+3, drwT * 1e+3, colC), 10, 10)
+    g.print(string.format("%s\n%d fps updT: %.1f ms drwT: %.1f ms colC: %.1f bodC: %d/%d", conf.version,
+                love.timer.getFPS(), updT * 1e+3, drwT * 1e+3, colC, active, max_balls), 10, 10)
 
     drwT = avg60(drwT, love.timer.getTime() - begin)
 end

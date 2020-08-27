@@ -47,20 +47,18 @@ end
 local function spawn_enemy(ball)
     local r = conf.radius
     ball = ball or {}
-    for i = 1, 3 do
-        local angle = 2.0 * math.pi * math.random()
-        local dx, dy = math.cos(angle), math.sin(angle)
-        local d = math.sqrt(width * width + height * height) / 2.0 + r + 1.0
-        local v = math.random(conf.min_speed, conf.max_speed)
-        ball.x, ball.y = width / 2.0 + dx * d, height / 2.0 + dy * d
-        ball.vx, ball.vy = -dx * v, -dy * v
-        ball.r = r
-        ball.effect_collide = 0.0
-        ball.mark = false
-        ball.type = TYPE_ENEMY
-        if not is_overlap_any(ball) then
-            return ball
-        end
+    local angle = 2.0 * math.pi * math.random()
+    local dx, dy = math.cos(angle), math.sin(angle)
+    local d = math.sqrt(width * width + height * height) / 2.0 + r + 1.0
+    local v = math.random(conf.min_speed, conf.max_speed)
+    ball.x, ball.y = width / 2.0 + dx * d, height / 2.0 + dy * d
+    ball.vx, ball.vy = -dx * v, -dy * v
+    ball.r = r
+    ball.effect_collide = 0.0
+    ball.mark = false
+    ball.type = TYPE_ENEMY
+    if not is_overlap_any(ball) then
+        return ball
     end
     return nil
 end
@@ -92,7 +90,6 @@ local update_by_type = {
             take_damage(conf.damage_normal)
             return nil
         end
-        ball.effect_collide = math.max(ball.effect_collide - dt, 0.0)
         return ball
     end,
     [TYPE_BONUS] = function(dt, ball)
@@ -119,7 +116,6 @@ function love.update(dt)
     end
     player.effect_collide = math.max(player.effect_collide - dt, 0.0)
 
-    local escaped = 0
     for i = 1, max_balls do
         local ball = balls[i]
         if ball then
@@ -134,8 +130,8 @@ function love.update(dt)
 
     if updT < 10e-3 then
         spawn_counter = spawn_counter + dt
-        if spawn_counter > 0.1 then
-            spawn_counter = spawn_counter - 0.1
+        while spawn_counter > conf.spawn_interval do
+            spawn_counter = spawn_counter - conf.spawn_interval
             local enemy = spawn_enemy()
             if enemy then
                 for i = 1, max_balls do

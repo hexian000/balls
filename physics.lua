@@ -61,6 +61,7 @@ local function advance(dt, bodies, n)
         if body then
             body.x = body.x + body.vx * dt
             body.y = body.y + body.vy * dt
+            body.effect_collide = math.max(body.effect_collide - dt, 0.0)
         end
     end
 end
