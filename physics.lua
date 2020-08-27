@@ -26,7 +26,7 @@ local function has_collision(b1, b2, dt)
         if not t then
             return nil
         end
-        b1.collision, b2.collision = 1.0, 1.0
+        b1.effect_collide, b2.effect_collide = 1.0, 1.0
         if t1 and t2 then
             return math.min(t1, t2)
         end

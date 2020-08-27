@@ -1,7 +1,7 @@
 local draw_by_type = {
     [TYPE_ENEMY] = function(g, ball)
-        if ball.collision > 0.0 then
-            local c = math.pow(conf.collision_animation, 1.0 - ball.collision)
+        if ball.effect_collide > 0.0 then
+            local c = math.pow(conf.effect_collide, 1.0 - ball.effect_collide)
             local nc = 1.0 - c
             g.setColor(1.0 * c + 0.25 * nc, 0.28 * nc, 0.80 * nc)
         else
@@ -29,8 +29,8 @@ local function draw_game(g)
     -- draw player
     if player.active then
         local c
-        if player.collision > 0.0 then
-            c = math.pow(conf.collision_animation, 1.0 - player.collision)
+        if player.effect_collide > 0.0 then
+            c = math.pow(conf.effect_collide, 1.0 - player.effect_collide)
         else
             c = 0.0
         end

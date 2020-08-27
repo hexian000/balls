@@ -12,7 +12,7 @@ function love.load()
         x = width / 2.0,
         y = height / 2.0,
         r = conf.radius,
-        collision = 0.0,
+        effect_collide = 0.0,
         hp = 1.0,
         active = true,
         type = TYPE_PLAYER
@@ -55,7 +55,7 @@ local function spawn_enemy(ball)
         ball.x, ball.y = width / 2.0 + dx * d, height / 2.0 + dy * d
         ball.vx, ball.vy = -dx * v, -dy * v
         ball.r = r
-        ball.collision = 0.0
+        ball.effect_collide = 0.0
         ball.mark = false
         ball.type = TYPE_ENEMY
         if not is_overlap_any(ball) then
@@ -70,7 +70,7 @@ colC = 0.0
 spawn_counter = 0.0
 
 local function take_damage(damage)
-    player.collision = 1.0
+    player.effect_collide = 1.0
     local hp = player.hp - damage
     if hp < 0.0 then
         player.active = false
@@ -92,7 +92,7 @@ local update_by_type = {
             take_damage(conf.damage_normal)
             return nil
         end
-        ball.collision = math.max(ball.collision - dt, 0.0)
+        ball.effect_collide = math.max(ball.effect_collide - dt, 0.0)
         return ball
     end,
     [TYPE_BONUS] = function(dt, ball)
@@ -117,7 +117,7 @@ function love.update(dt)
     if player.active then
         player.hp = math.min(player.hp + conf.base_heal * dt, 1.0)
     end
-    player.collision = math.max(player.collision - dt, 0.0)
+    player.effect_collide = math.max(player.effect_collide - dt, 0.0)
 
     local escaped = 0
     for i = 1, max_balls do
