@@ -1,5 +1,5 @@
 return {
-    version = "Balls by hex [development build] 20200827",
+    version = "Balls by hexian000 [development build]\nhttps://github.com/hexian000/balls\n",
 
     spawn_interval = 0.1,
     min_speed = 100,

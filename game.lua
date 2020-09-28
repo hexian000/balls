@@ -3,7 +3,7 @@ TYPE_BONUS = 2
 
 function love.load()
     love.window.setTitle("Balls")
-    love.window.setFullscreen(true)
+    -- love.window.setFullscreen(true)
     width, height = love.graphics.getDimensions()
     love.mouse.setVisible(false)
     math.randomseed(os.time())

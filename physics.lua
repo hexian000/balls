@@ -12,27 +12,27 @@ local function has_collision(b1, b2, dt)
     local b = 2.0 * (dvx * dpx + dvy * dpy)
     local c = dpx * dpx + dpy * dpy - r * r
     local d = b * b - 4.0 * a * c
-    if d >= 0.0 then
-        a = 2.0 * a
-        d = math.sqrt(d)
-        local t1, t2 = (-b + d) / a, (-b - d) / a
-        if t1 < 0.0 or t1 > dt or a * t1 + b >= 0.0 then
-            t1 = nil
-        end
-        if t2 < 0.0 or t2 > dt or a * t2 + b >= 0.0 then
-            t2 = nil
-        end
-        local t = t1 or t2
-        if not t then
-            return nil
-        end
-        b1.effect_collide, b2.effect_collide = 1.0, 1.0
-        if t1 and t2 then
-            return math.min(t1, t2)
-        end
-        return t
+    if d < 0.0 then
+        return nil
     end
-    return nil
+    a = 2.0 * a
+    d = math.sqrt(d)
+    local t1, t2 = (-b + d) / a, (-b - d) / a
+    if t1 < 0.0 or t1 > dt or a * t1 + b >= 0.0 then
+        t1 = nil
+    end
+    if t2 < 0.0 or t2 > dt or a * t2 + b >= 0.0 then
+        t2 = nil
+    end
+    local t = t1 or t2
+    if not t then
+        return nil
+    end
+    b1.effect_collide, b2.effect_collide = 1.0, 1.0
+    if t1 and t2 then
+        return math.min(t1, t2)
+    end
+    return t
 end
 
 local function project(x, y, px, py)
