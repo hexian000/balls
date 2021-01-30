@@ -128,23 +128,21 @@ function love.update(dt)
         effect_dead = 2.0
     end
 
-    if updT < 10e-3 then
-        spawn_counter = spawn_counter + dt
-        while spawn_counter > conf.spawn_interval do
-            spawn_counter = spawn_counter - conf.spawn_interval
-            local enemy = spawn_enemy()
+    spawn_counter = spawn_counter + dt
+    while spawn_counter > conf.spawn_interval do
+        spawn_counter = spawn_counter - conf.spawn_interval
+        local enemy = spawn_enemy()
+        if enemy then
+            for i = 1, max_balls do
+                if not balls[i] then
+                    balls[i] = enemy
+                    enemy = nil
+                    break
+                end
+            end
             if enemy then
-                for i = 1, max_balls do
-                    if not balls[i] then
-                        balls[i] = enemy
-                        enemy = nil
-                        break
-                    end
-                end
-                if enemy then
-                    max_balls = max_balls + 1
-                    balls[max_balls] = enemy
-                end
+                max_balls = max_balls + 1
+                balls[max_balls] = enemy
             end
         end
     end
