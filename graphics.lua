@@ -58,7 +58,8 @@ function love.draw()
 
     -- debug
     g.setColor(0.0, 1.0, 0.0)
-    g.print(string.format("%s\n%d fps updT: %.1f ms drwT: %.1f ms colC: %.1f bodC: %d/%d", conf.version,
+    g.print(string.format("%s [%s]\n  %s\n%d fps updT: %.1f ms drwT: %.1f ms colC: %.1f bodC: %d/%d",
+                conf.title, conf.version, conf.homepage,
                 love.timer.getFPS(), updT * 1e+3, drwT * 1e+3, colC, active, max_balls), 10, 10)
 
     drwT = avg60(drwT, love.timer.getTime() - begin)

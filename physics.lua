@@ -35,21 +35,13 @@ local function has_collision(b1, b2, dt)
     return t
 end
 
-local function project(x, y, px, py)
-    local pn = math.sqrt(px * px + py * py)
-    px, py = px / pn, py / pn
-    local m = x * px + y * py
-    return m * px, m * py
-end
-
-local function solve_collision(ct, c1, c2)
-    local pvx1, pvy1 = project(c1.vx, c1.vy, c1.x - c2.x, c1.y - c2.y)
-    local nvx1, nvy1 = c1.vx - pvx1, c1.vy - pvy1
-    local pvx2, pvy2 = project(c2.vx, c2.vy, c1.x - c2.x, c1.y - c2.y)
-    local nvx2, nvy2 = c2.vx - pvx2, c2.vy - pvy2
-
-    c1.vx, c1.vy = nvx1 + pvx2, nvy1 + pvy2
-    c2.vx, c2.vy = nvx2 + pvx1, nvy2 + pvy1
+local function solve_collision(c1, c2)
+    local r = conf.restitution
+    local vx1, vy1, vx2, vy2 = c1.vx, c1.vy, c2.vx, c2.vy
+    c1.vx = (vx1 + vx2 + r * (vx2 - vx1)) / 2.0
+    c1.vy = (vy1 + vy2 + r * (vy2 - vy1)) / 2.0
+    c2.vx = (vx1 + vx2 + r * (vx1 - vx2)) / 2.0
+    c2.vy = (vy1 + vy2 + r * (vy1 - vy2)) / 2.0
 end
 
 local function advance(dt, bodies, n)
@@ -93,7 +85,7 @@ function simulate(dt, bodies, n)
         if ct then
             count = count + 1
             advance(ct, bodies, n)
-            solve_collision(ct, c1, c2)
+            solve_collision(c1, c2)
             dt = dt - ct
             touched = true
         end
