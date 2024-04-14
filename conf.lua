@@ -3,9 +3,10 @@ return {
     version = "development build",
     homepage = "https://github.com/hexian000/balls",
 
-    spawn_interval = 0.02,
+    spawn_interval = 0.01,
+    max_balls = 200,
     min_speed = 200,
-    max_speed = 1000,
+    max_speed = 1200,
     effect_collide = 2e-3,
     radius = 15,
     restitution = 1.0,

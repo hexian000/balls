@@ -45,6 +45,9 @@ local function is_overlap_any(ball)
 end
 
 local function spawn_enemy(ball)
+    if max_balls >= conf.max_balls then
+        return nil
+    end
     local r = conf.radius
     ball = ball or {}
     local angle = 2.0 * math.pi * math.random()
@@ -119,7 +122,14 @@ function love.update(dt)
     for i = 1, max_balls do
         local ball = balls[i]
         if ball then
-            balls[i] = update_by_type[ball.type](dt, ball)
+            ball = update_by_type[ball.type](dt, ball)
+            if ball then
+                balls[i] = ball
+            else
+                balls[i] = balls[max_balls]
+                balls[max_balls] = nil
+                max_balls = max_balls - 1
+            end
         end
     end
 
@@ -133,17 +143,8 @@ function love.update(dt)
         spawn_counter = spawn_counter - conf.spawn_interval
         local enemy = spawn_enemy()
         if enemy then
-            for i = 1, max_balls do
-                if not balls[i] then
-                    balls[i] = enemy
-                    enemy = nil
-                    break
-                end
-            end
-            if enemy then
-                max_balls = max_balls + 1
-                balls[max_balls] = enemy
-            end
+            max_balls = max_balls + 1
+            balls[max_balls] = enemy
         end
     end
 

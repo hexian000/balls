@@ -17,11 +17,9 @@ function love.draw()
     local begin = love.timer.getTime()
 
     local g = love.graphics
-    local active = 0
     for i = 1, max_balls do
         local ball = balls[i]
         if ball then
-            active = active + 1
             if ball.mark then
                 g.setColor(0.0, 1.0, 0.0)
                 g.circle("fill", ball.x, ball.y, ball.r)
@@ -58,9 +56,9 @@ function love.draw()
 
     -- debug
     g.setColor(0.0, 1.0, 0.0)
-    g.print(string.format("%s [%s]\n  %s\n%d fps updT: %.1f ms drwT: %.1f ms colC: %.1f bodC: %d/%d",
+    g.print(string.format("%s [%s]\n  %s\n%d fps updT: %.1f ms drwT: %.1f ms colC: %.1f bodC: %d",
                 conf.title, conf.version, conf.homepage,
-                love.timer.getFPS(), updT * 1e+3, drwT * 1e+3, colC, active, max_balls), 10, 10)
+                love.timer.getFPS(), updT * 1e+3, drwT * 1e+3, colC, max_balls), 10, 10)
 
     drwT = avg60(drwT, love.timer.getTime() - begin)
 end
